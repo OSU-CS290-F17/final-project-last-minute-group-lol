@@ -3,25 +3,25 @@
 
 **This assignment will not be demoed**
 
-The goal of this assignment is to start working with Handlebars and Express.  The code that's currently in this repo implements a site that's served completely statically.  Specifically, there is a directory `public/` that contains a number of static files that are served by a simple Express server in `server.js`.  Your job in this assignment is to templatize this existing site.  Specifically, you must do the following tasks:
+The goal of this assignment is to start working with Handlebars and Express.  The code that's currently in this repo implements a site that's served completely statically.  Specifically, there is a directory `public/` that contains a number of static files that are served by a simple Express server in `server.js`.  Your job in this assignment is to templatize this existing site.  Specifically, you must complete the following tasks:
 
 ## 1. Implement a post template and use it on the client side
 
-When the user adds a new post using the "+" button in the current site, the client-side code in `index.js` calls a function `insertNewPost()`, which takes as arguments the data about the new post to be inserted and  uses native JS methods to construct a DOM element representing a post based on that data.  Finally, `insertNewPost()` inserts that new post element into the DOM at the appropriate location.
+When the user adds a new post using the "+" button in the current site, the client-side code in `index.js` calls a function `insertNewPost()`, which uses native JS methods to construct a DOM element representing a new post based on data passed as arguments to the function and inserts that new post element into the DOM at the appropriate location.
 
 Your first task in this assignment is to write a Handlebars template to represent a single post and then to use that template in `insertNewPost()` instead of the native JS methods currently used to create a new post and insert it into the DOM.  Here are some specific things you'll have to do to make this happen:
 
   * Implement your post template in its own `.handlebars` file.  You'll use this template in later steps, too.
 
-  * Add to your `package.json` file a new build script that uses `handlebars` to pre-compile your post template into a JS file.  Note that you'll need to install `handlebars` as a dependency of your package.  Make sure your server process in `server.js` serves this generated JS file.  Also, make sure to hook your build script up so it's run every time you use `npm start` to start the server, just in case you change your template.
+  * Add to your `package.json` file a new build script that uses `handlebars` to pre-compile your post template into a JS file.  Note that you'll need to install `handlebars` as a dependency of your package in order to do this pre-compilation.  Make sure your server process in `server.js` serves this generated JS file, and make sure to hook your build script up so it's run every time you use `npm start` to start the server, just in case you change your template.
 
   * Make sure your client-side HTML code includes your generated JS script for the post template.  Also make sure your client-side HTML code includes the [Handlebars runtime library](https://cdnjs.com/libraries/handlebars.js), so it can actually use your template.
 
-  * Replace the native JS functions used in `insertNewPost()` to build and insert a new post element with a call to your post template function.  Make sure to pass the appropriate arguments into the post template function.  Note that your post template function will generate an HTML string, not a DOM element, so you'll have to use a slightly different approach to insert the new post into the DOM.
+  * Replace the native JS functions currently used in `insertNewPost()` to build and insert a new post element with a call to your post template function, making sure to pass the appropriate arguments into the post template function.  Note that your post template function will generate an HTML string, not a DOM element, so you'll have to use a slightly different approach to insert the new post into the DOM.
 
 ## 2. Templatize the posts page to replace `index.html`
 
-The current site uses a hard-coded page in `index.html` to display a page containing all posts.  Your next task in the assignment is to implement a templatized version of this posts page, and to use data stored on the server side to dynamically generate the posts page when a client requests it.  Specifically, you are provided with raw data for the current set of 8 posts in `postData.json`.  You should use that data in conjunction with a set of templates you write to replace `index.html`.  Here are some specific things you'll have to do to make this happen:
+The current site uses a hard-coded page in `index.html` to display a page containing 8 posts.  Your next task in the assignment is to implement a templatized version of this posts page, and to use data stored on the server side to dynamically generate the posts page when a client requests it.  Specifically, you are provided with raw data in `postData.json` representing the current set of 8 posts.  You should use that data in conjunction with a set of templates you write to replace the functionality `index.html`.  Here are some specific things you'll have to do to make this happen:
 
   * Implement one or more `.handlebars` template files to replicate the structure of `index.html`.
     * Your new set of templates can use a layout template if you'd like.  This isn't strictly necessary here, but you'll have to do it eventually to earn full credit for the assignment.
@@ -30,25 +30,26 @@ The current site uses a hard-coded page in `index.html` to display a page contai
 
   * In your server process in `server.js`, set up your Express server to use `express-handlebars` as the view engine.  Note that you'll need to install `express-handlebars` as a dependency of your package.
 
-  * Implement a route in your server process for the root path `/`.  Make sure this route's middleware is called before the middleware function that serves `index.html`.  Within this new route, you should respond to the client by using your newly-created template(s) to render the posts page, just as it's rendered by `index.html`.  In particular, make sure you load the raw post data from `postData.json` and pass all of this post data into your template(s) using the appropriate template argument(s).  When you render the posts page this way, make sure to respond with status 200.
+  * Implement a route in your server process for the root path `/`.  Make sure this route's middleware is called before the middleware function that serves `index.html`.  Within this new route, you should respond to the client by using your newly-created template(s) to render the posts page (which should look the same as `index.html`).  In particular, make sure you load the raw post data from `postData.json` and pass all of this post data into your template(s) using the appropriate template argument(s).  When you render the posts page this way, make sure to respond with status 200.
 
 ## 3. Templatize the 404 page
 
-The current site also uses a hard-coded page in `404.html` to display an error page to the user when they enter a URL that doesn't correspond to a page in the site.  There is a route in the server process in `server.js` that responds with this page and a 404 status when the user enters an unknown URL.  Your next task for the assignment is to turn this 404 page into a template.
+The current site contains a route in the server process in `server.js` that responds with a 404 status and an error page hard-coded in `404.html` whenever a client requests an unknown path.  Your next task for the assignment is to turn this 404 page into a template.
 
 There are two ways to do this.  The "easy" way is just to basically copy `404.html` into a new Handlebars template, e.g. `404.handlebars`.  However, if you do this, you'll notice that there is a lot of duplicated code between your 404 template and your posts page template.  To earn full credit, you must templatize all of the elements that are common to both pages and re-use those templates whenever those elements need to be rendered.  Specifically, here are some of the things you'll need to do to accomplish this:
 
-  * Write a layout template that contains the HTML skeleton that's common to both the 404 page and the posts page.  Make sure all of the needed CSS and client-side JS is included in this layout template.  Also make sure you set your server process up to use this layout template.
+  * Write a layout template that contains the HTML skeleton that's common to both the 404 page and the posts page.  Make sure all of the needed CSS and client-side JS is included in this layout template.  Also make sure you set your server process up to use this layout template.  Remove this HTML skeleton from the 404 and post page templates, and allow it to be provided via your new layout template.
 
-  * Write partials for all of the visual elements that are common to both pages, e.g. the page header.  Use these partials to render these elements in each page.
+  * Write a partial representing each of the visual elements that are common to both the 404 page and the posts page, e.g. the page header.  Use these partials to render these elements in each page.  You can go even further than this if you like, writing and using a partial for each discrete "component" in the site, e.g. the sell something button/modal and the filter sidebar, but this is not necessary.
 
 ## 4. Implement a page to render a single post
 
-Finally, use the post template you implemented in step 1 to create a new page that displays a single post.  This page should behave as follows:
+Finally, use the post template you implemented in step 1 to create a new route that displays a single post.  This route should behave as follows:
 
-  * When a client requests a path of the form `/posts/<n>`, where `<n>` is an integer that is within the bounds of the array of posts stored in `postData.json` (i.e. `<n>` is between 0 and 7), you should respond with a page that displays only the corresponding post.  If `<n>` is not within the bounds of the post array, or if it's not an integer, you should respond with a 404.
+  * When a client requests a path of the form `/posts/<n>`, where `<n>` is an integer that is within the bounds of the array of posts stored in `postData.json` (i.e. `<n>` is between 0 and 7), you should respond with a page that contains only the corresponding post.  If `<n>` is not within the bounds of the array of posts, or if it's not an integer, you should respond with a 404 status and the 404 page you implemented in step 3.
 
-  * In your page displaying a single post, the following things should not be displayed or even present in the DOM:
+  * Your single-post page should contain only the site header and the individual post that was requested, the following things should not be displayed or even present in the DOM:
+    * Any posts other than the one that was requested.
     * The filter sidebar.
     * The "sell something" button.
     * The "sell something" modal and its backdrop.
@@ -78,14 +79,14 @@ In addition to submitting your assignment via GitHub, you must submit the URL to
 
 The assignment is worth 100 points total:
 
-  * 25 points: client-side JS uses a pre-compiled template to insert new posts, as described above
+  * 25 points: the client-side JS uses a pre-compiled post template to insert new posts, as described above
 
-  * 20 points: server uses your post template as a partial within a larger template to render the page of all posts on the root path `/`, as described above
+  * 20 points: the server uses your post template as a partial within a larger template to render the page of all posts on the root path `/`, as described above
 
-  * 10 points: server uses a template to render the 404 page, as described above
+  * 10 points: the server uses a template to render the 404 page, as described above
 
-  * 25 points: server renders a page displaying a single post on the path `/posts/<n>`, as described above
+  * 25 points: the server renders a page displaying a single post on the path `/posts/<n>`, as described above
 
-  * 10 points: site is fully templatized, i.e. no HTML code is duplicated; re-used components of the site are written in partials, and the HTML skeleton common to every page is written in a layout
+  * 10 points: the site is fully templatized, i.e. no HTML code is duplicated; re-used components of the site are written in partials, and the HTML skeleton common to every page is written in a layout
 
   * 10 points: the same template is used to render both the page displaying all posts (i.e. `/`) and the page displaying a single post (i.e. `/posts/<n>`)
