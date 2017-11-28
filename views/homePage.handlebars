@@ -1,0 +1,14 @@
+	{{> header}}
+    <main class="content">
+      
+	  {{> filter}}
+
+      <section id="posts">
+			{{#each posts}}
+			{{>post}}
+			{{/each}}
+      </section>
+
+    </main>
+
+    {{> sellSomething}}

@@ -2,8 +2,8 @@
  * Write your JS code in this file.  Make sure to add your name and
  * @oregonstate.edu email address below.
  *
- * Name:
- * Email:
+ * Name: Ian Band
+ * Email: bandi@oregonstate.edu
  */
 
 /*
@@ -34,66 +34,23 @@ var allCities = [];
  *   </div>
  * </div>
  */
-function insertNewPost(description, photoURL, price, city, condition) {
+function insertNewPost(description, photoURL, price, city, condition){
+	var newPostHTML = createPostHTML(description, photoURL, price, city, condition);
+	var postsSection = document.getElementById('posts');
+	postsSection.insertAdjacentHTML('beforeend', newPostHTML);
+}
+function createPostHTML(description, photoURL, price, city, condition) {
+	var postTemplateArgs = {
+		description: description,
+		photoURL: photoURL,
+		price: price,
+		city: city,
+		condition: condition
+	};
 
-  // Create the containing <div> element.
-  var postDiv = document.createElement('div');
-  postDiv.classList.add('post');
-  postDiv.setAttribute('data-price', price);
-  postDiv.setAttribute('data-city', city);
-  postDiv.setAttribute('data-condition', condition);
-
-  // Create the inner post-contents <div> and add it to the post <div>.
-  var postContentsDiv = document.createElement('div');
-  postContentsDiv.classList.add('post-contents');
-  postDiv.appendChild(postContentsDiv);
-
-  /*
-   * Create the post-image-container <div> and its <img> contents and add
-   * them into the post-contents <div>.
-   */
-  var postImageContainerDiv = document.createElement('div');
-  postImageContainerDiv.classList.add('post-image-container');
-  postContentsDiv.appendChild(postImageContainerDiv);
-
-  var postImg = document.createElement('img');
-  postImg.src = photoURL;
-  postImg.alt = description;
-  postImageContainerDiv.appendChild(postImg);
-
-  /*
-   * Create the post-info-container <div> and all of its contents and add
-   * them into the post-contents <div>.
-   */
-  var postInfoContainerDiv = document.createElement('div');
-  postInfoContainerDiv.classList.add('post-info-container');
-  postContentsDiv.appendChild(postInfoContainerDiv);
-
-  var postLink = document.createElement('a');
-  postLink.classList.add('post-title');
-  postLink.href = '#';
-  postLink.textContent = description;
-  postInfoContainerDiv.appendChild(postLink);
-
-  var spaceText1 = document.createTextNode(' ');
-  postInfoContainerDiv.appendChild(spaceText1);
-
-  var postPriceSpan = document.createElement('span');
-  postPriceSpan.classList.add('post-price');
-  postPriceSpan.textContent = '$' + price;
-  postInfoContainerDiv.appendChild(postPriceSpan);
-
-  var spaceText2 = document.createTextNode(' ');
-  postInfoContainerDiv.appendChild(spaceText2);
-
-  var postCitySpan = document.createElement('span');
-  postCitySpan.classList.add('post-city');
-  postCitySpan.textContent = '(' + city + ')';
-  postInfoContainerDiv.appendChild(postCitySpan);
-
-  var postsSection = document.getElementById('posts');
-  postsSection.appendChild(postDiv);
-
+	var postHTML = Handlebars.templates.post(postTemplateArgs);
+	console.log("== postHTML:", postHTML);
+	return postHTML;
 }
 
 
