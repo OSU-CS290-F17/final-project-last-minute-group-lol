@@ -13,7 +13,7 @@ a:hover {
 }
 
 header {
-  background-color: #000;
+  background-color: rgb(117, 35, 216);
   align-items: center;
   display: flex;
   position: relative;
@@ -124,8 +124,7 @@ header a {
   width: 100%;
   margin-top: 20px;
 }
-
-.post-price {
+.post-score {
   display: inline-block;
   font-size: 80%;
   padding: 3px;
@@ -133,6 +132,15 @@ header a {
   border: 1px solid #ababab;
   border-radius: 3px;
   background: #efefef;
+}
+.post-vote-container {
+	display: flex;
+}
+.post-downvote {
+	color: #500d75;
+}
+.post-upvote {
+	color: #f1842e;
 }
 
 #sell-something-button {

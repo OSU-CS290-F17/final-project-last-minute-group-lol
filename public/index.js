@@ -1,51 +1,21 @@
 /*
- * Write your JS code in this file.  Make sure to add your name and
- * @oregonstate.edu email address below.
- *
  * Name: Ian Band
  * Email: bandi@oregonstate.edu
  */
 
-/*
- * These
- */
 var allPosts = [];
-var allCities = [];
 
-/*
- * This function should use your Handlebars post template to generate HTML
- * representing a single post, given the description, photo URL, price, city,
- * and condition of the item to be sold as arguments to the function.  The
- * generated HTML should then be inserted into the DOM at the end of the
- * <section> element whose id is "posts".
- *
- * The function currently uses native JS methods to generate a new DOM element
- * representing single post, given the specified information, and inserts that
- * post into the DOM.  The new post element has the following structure:
- *
- * <div class="post" data-price="<PRICE>" data-city="<CITY>" data-condition="<CONDITION>">
- *   <div class="post-contents">
- *     <div class="post-image-container">
- *       <img src="<PHOTO_URL>" alt="<ITEM_DESCRIPTION>">
- *     </div>
- *     <div class="post-info-container">
- *       <a href="#" class="post-title"><ITEM_DESCRIPTION></a> <span class="post-price">$<PRICE></span> <span class="post-city">(<CITY>)</span>
- *     </div>
- *   </div>
- * </div>
- */
-function insertNewPost(description, photoURL, price, city, condition){
-	var newPostHTML = createPostHTML(description, photoURL, price, city, condition);
+function insertNewPost(description, photoURL, score, title){
+	var newPostHTML = createPostHTML(description, photoURL, score, title);
 	var postsSection = document.getElementById('posts');
 	postsSection.insertAdjacentHTML('beforeend', newPostHTML);
 }
-function createPostHTML(description, photoURL, price, city, condition) {
+function createPostHTML(description, photoURL, score, title) {
 	var postTemplateArgs = {
 		description: description,
 		photoURL: photoURL,
-		price: price,
-		city: city,
-		condition: condition
+		score: score,
+		title: title
 	};
 
 	var postHTML = Handlebars.templates.post(postTemplateArgs);
@@ -55,10 +25,7 @@ function createPostHTML(description, photoURL, price, city, condition) {
 
 
 /***************************************************************************
- **
- ** You should not modify any of the functions below.
- **
- ***************************************************************************/
+
 
 
 /*
@@ -67,34 +34,108 @@ function createPostHTML(description, photoURL, price, city, condition) {
  * these inputs.  If the user did not supply a required input, they instead
  * recieve an alert, and no new post is inserted.
  */
+ 
+function handleUpvoteClick(postTitle){
+}
 function handleModalAcceptClick() {
 
   var description = document.getElementById('post-text-input').value.trim();
   var photoURL = document.getElementById('post-photo-input').value.trim();
-  var price = document.getElementById('post-price-input').value.trim();
-  var city = document.getElementById('post-city-input').value.trim();
-  var condition = document.querySelector('#post-condition-fieldset input:checked').value;
+  var postTitle = document.getElementById('post-title-input').value.trim();
 
-  if (!description || !photoURL || !price || !city || !condition) {
-    alert("You must fill in all of the fields!");
+  if (!postTitle || !photoURL) {
+    alert("You must have a title and photo url!");
   } else {
+	
+	var postRequest = new XMLHttpRequest();
+    var postURL = "/newPost";
+    postRequest.open('POST', postURL, true);
+	
+	var postObj = {
+		score: 1,
+		description: description,
+		photoURL: photoURL,
+		title: postTitle
+    };
+	
+	
+	var requestBody = JSON.stringify(postObj);
+	console.log("stringifyd body of request: " + requestBody);
+	postRequest.setRequestHeader('Content-Type', 'application/json');
+	
+	
+	
+	postRequest.addEventListener('load', function (event) {
+      if (event.target.status !== 200) {
+        alert("Error storing post in database:\n\n\n" + event.target.response);
+      } else {
+		
+        var newPost = createPostHTML(description, photoURL, 1, postTitle);  //createPostHTML(description, photoURL, score, title)
+        var postContainer = document.getElementById('posts');
 
-    allPosts.push({
-      description: description,
-      photoURL: photoURL,
-      price: price,
-      city: city,
-      condition: condition
+        postContainer.insertAdjacentHTML('beforeend', newPost);
+		allPosts.push(newPost);
+		console.log('post created successfuly!');
+      }
     });
-
+	
+	console.log('sending request to make post');
+	postRequest.send(requestBody);
+	
+	
     clearFiltersAndReinsertPosts();
-
-    addCityToAllCities(city);
 
     hideSellSomethingModal();
 
   }
 
+}
+
+function upvotePost(){ //very sloppy, can only be used on /p/:postTitle page...
+	var postToUpvote = document.getElementsByClassName('post');
+	var postToUpvoteTitle = postToUpvote[0].getAttribute('data-title');
+	console.log('the title of the post you are attempting to upvote is: ' + postToUpvoteTitle)
+	
+	var postRequest = new XMLHttpRequest();
+    var postURL = '/p/' + postToUpvoteTitle + '/upvote';
+    postRequest.open('POST', postURL, true);
+	
+	
+	postRequest.addEventListener('load', function (event) {
+      if (event.target.status !== 200) {
+        alert("Error sending upvote request:\n\n\n" + event.target.response);
+      } else {//apply upvote
+		console.log("upvote successful!");
+		var voteCount = parseInt(document.getElementsByClassName('post-score')[0].textContent);
+		voteCount++;
+		document.getElementsByClassName('post-score')[0].textContent = voteCount;
+		
+      }
+    });
+	postRequest.send();
+}
+function downvotePost(){ //very sloppy, can only be used on /p/:postTitle page...
+	var postToDownvote = document.getElementsByClassName('post');
+	var postToDownvoteTitle = postToDownvote[0].getAttribute('data-title');
+	console.log('the title of the post you are attempting to upvote is: ' + postToDownvoteTitle)
+	
+	var postRequest = new XMLHttpRequest();
+    var postURL = '/p/' + postToDownvoteTitle + '/downvote';
+    postRequest.open('POST', postURL, true);
+	
+	
+	postRequest.addEventListener('load', function (event) {
+      if (event.target.status !== 200) {
+        alert("Error sending downvote request:\n\n\n" + event.target.response);
+      } else {//apply upvote
+		console.log("downvote successful!");
+		var voteCount = parseInt(document.getElementsByClassName('post-score')[0].textContent);
+		voteCount--;
+		document.getElementsByClassName('post-score')[0].textContent = voteCount;
+		
+      }
+    });
+	postRequest.send();
 }
 
 
@@ -105,9 +146,6 @@ function handleModalAcceptClick() {
 function clearFiltersAndReinsertPosts() {
 
   document.getElementById('filter-text').value = "";
-  document.getElementById('filter-min-price').value = "";
-  document.getElementById('filter-max-price').value = "";
-  document.getElementById('filter-city').value = "";
 
   var filterConditionCheckedInputs = document.querySelectorAll("#filter-condition input");
   for (var i = 0; i < filterConditionCheckedInputs.length; i++) {
@@ -118,26 +156,6 @@ function clearFiltersAndReinsertPosts() {
 
 }
 
-
-/*
- * This function checks to see if a city is included in the collection of all
- * cities for which we have a post.  If it's not, the new city is added to the
- * collection.
- */
-function addCityToAllCities(city) {
-
-  /*
-   * If city doesn't already exist in the list of cities by which we can
-   * filter, add it.
-   */
-  if (allCities.indexOf(city.toLowerCase()) === -1) {
-    allCities.push(city.toLowerCase());
-    var newCityOption = createCityOption(city);
-    var filterCitySelect = document.getElementById('filter-city');
-    filterCitySelect.appendChild(newCityOption);
-  }
-
-}
 
 
 /*
@@ -163,8 +181,7 @@ function clearSellSomethingModalInputs() {
   var postTextInputElements = [
     document.getElementById('post-text-input'),
     document.getElementById('post-photo-input'),
-    document.getElementById('post-price-input'),
-    document.getElementById('post-city-input')
+	document.getElementById('post-title-input')
   ];
 
   /*
@@ -173,12 +190,6 @@ function clearSellSomethingModalInputs() {
   postTextInputElements.forEach(function (inputElem) {
     inputElem.value = '';
   });
-
-  /*
-   * Grab the originally checked radio button and make sure it's checked.
-   */
-  var checkedPostConditionButton = document.querySelector('#post-condition-fieldset input[checked]');
-  checkedPostConditionButton.checked = true;
 
 }
 
@@ -202,16 +213,6 @@ function hideSellSomethingModal() {
 
 
 /*
- * This function creates a new <option> element containing a given city name.
- */
-function createCityOption(city) {
-  var newCityOption = document.createElement('option');
-  newCityOption.textContent = city;
-  return newCityOption;
-}
-
-
-/*
  * A function to apply the current filters to a specific post.  Returns true
  * if the post passes the filters and should be displayed and false otherwise.
  */
@@ -224,35 +225,7 @@ function postPassesFilters(post, filters) {
       return false;
     }
   }
-
-  if (filters.minPrice) {
-    var filterMinPrice = Number(filters.minPrice);
-    if (Number(post.price) < filterMinPrice) {
-      return false;
-    }
-  }
-
-  if (filters.maxPrice) {
-    var filterMaxPrice = Number(filters.maxPrice);
-    if (Number(post.price) > filterMaxPrice) {
-      return false;
-    }
-  }
-
-  if (filters.city) {
-    if (post.city.toLowerCase() !== filters.city.toLowerCase()) {
-      return false;
-    }
-  }
-
-  if (filters.conditions && filters.conditions.length > 0) {
-    if (filters.conditions.indexOf(post.condition) === -1) {
-      return false;
-    }
-  }
-
   return true;
-
 }
 
 
@@ -269,16 +242,7 @@ function doFilterUpdate() {
    * Grab values of filters from user inputs.
    */
   var filters = {
-    text: document.getElementById('filter-text').value.trim(),
-    minPrice: document.getElementById('filter-min-price').value,
-    maxPrice: document.getElementById('filter-max-price').value,
-    city: document.getElementById('filter-city').value.trim(),
-    conditions: []
-  }
-
-  var filterConditionCheckedInputs = document.querySelectorAll("#filter-condition input:checked");
-  for (var i = 0; i < filterConditionCheckedInputs.length; i++) {
-    filters.conditions.push(filterConditionCheckedInputs[i].value);
+    text: document.getElementById('filter-text').value.trim()
   }
 
   /*
@@ -295,7 +259,7 @@ function doFilterUpdate() {
    */
   allPosts.forEach(function (post) {
     if (postPassesFilters(post, filters)) {
-      insertNewPost(post.description, post.photoURL, post.price, post.city, post.condition);
+      insertNewPost(post.description, post.photoURL, post.score, post.title);   //insertNewPost(description, photoURL, score, title)
     }
   });
 
@@ -310,17 +274,14 @@ function doFilterUpdate() {
  * {
  *   description: "...",
  *   photoURL: "...",
- *   price: ...,
- *   city: "...",
- *   condition: "..."
+ *   score: ...
  * }
  */
 function parsePostElem(postElem) {
 
   var post = {
-    price: postElem.getAttribute('data-price'),
-    city: postElem.getAttribute('data-city'),
-    condition: postElem.getAttribute('data-condition')
+    score: postElem.getAttribute('data-score'),
+	title: postElem.getAttribute('data-title')
   };
 
   var postImageElem = postElem.querySelector('.post-image-container img');
@@ -330,6 +291,9 @@ function parsePostElem(postElem) {
   return post;
 
 }
+
+
+
 
 
 /*
@@ -345,16 +309,6 @@ window.addEventListener('DOMContentLoaded', function () {
     allPosts.push(parsePostElem(postElems[i]));
   }
 
-  /*
-   * Grab all of the city names already in the filter dropdown.
-   */
-  var filterCitySelect = document.getElementById('filter-city');
-  if (filterCitySelect) {
-    var filterCityOptions = filterCitySelect.querySelectorAll('option:not([selected])');
-    for (var i = 0; i < filterCityOptions.length; i++) {
-      allCities.push(filterCityOptions[i].value.trim().toLowerCase());
-    }
-  }
 
   var sellSomethingButton = document.getElementById('sell-something-button');
   if (sellSomethingButton) {
@@ -373,7 +327,16 @@ window.addEventListener('DOMContentLoaded', function () {
 
   var filterUpdateButton = document.getElementById('filter-update-button');
   if (filterUpdateButton) {
-    filterUpdateButton.addEventListener('click', doFilterUpdate)
+    filterUpdateButton.addEventListener('click', doFilterUpdate);
+  }
+  
+  var upvoteButton = document.getElementById('post-upvote');
+  if (upvoteButton){
+	  upvoteButton.addEventListener('click', upvotePost);
+  }
+  var downvoteButton = document.getElementById('post-downvote');
+  if (downvoteButton){
+	  downvoteButton.addEventListener('click', downvotePost);
   }
 
 });

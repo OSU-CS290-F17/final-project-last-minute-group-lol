@@ -1,10 +1,12 @@
-<div class="post" data-price="{{price}}" data-city="{{city}}" data-condition="{{condition}}">
+<div class="post" data-title="{{title}}" data-score = {{score}}>
    <div class="post-contents">
-     <div class="post-image-container">
+	 <div class ="post-title-container">{{title}}</div>
+     <a class="post-image-container" href = "localhost:3000/p/{{title}}" target = "_blank">
        <img src="{{photoURL}}" alt="{{description}}">
-     </div>
+     </a>
      <div class="post-info-container">
-       <a href="#" class="post-title">{{description}}</a> <span class="post-price">${{price}}</span> <span class="post-city">({{city}})</span>
+		<div class = "post-score">{{score}}</div>
+		</div>
+		<a href="#" class="post-description">{{description}}</a>
      </div>
-   </div>
  </div>
